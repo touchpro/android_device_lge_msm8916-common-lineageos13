@@ -126,9 +126,9 @@ PRODUCT_PACKAGES += \
     init.qcom.usb.rc \
     init.qcom.bt.sh \
     init.qcom.power.rc \
-    init.qcom.ril.sh \
     init.recovery.qcom.rc \
     init.target.rc \
+    init.baseband.sh \
     ueventd.qcom.rc
 
 # RIL
@@ -136,9 +136,6 @@ PRODUCT_PACKAGES += \
     libxml2 \
     liblge \
     librmnetctl
-
-PRODUCT_COPY_FILES += \
-    $(LOCAL_PATH)/configs/set-baseband:system/bin/set-baseband
 
 # Snap
 PRODUCT_PACKAGES += \
@@ -162,6 +159,10 @@ PRODUCT_PACKAGES += \
     wcnss_service \
     wpa_supplicant \
     wpa_supplicant.conf
+
+# Gestures
+PRODUCT_PACKAGES += \
+    GestureHandler
 
 PRODUCT_COPY_FILES += \
     device/lge/msm8916-common/wcnss/p2p_supplicant.conf:system/etc/wifi/p2p_supplicant.conf \
