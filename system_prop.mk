@@ -67,16 +67,16 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Radio
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.data.netmgrd.qos.enable=false \
-    ro.use_data_netmgrd=true
-
-# Radio
-PRODUCT_PROPERTY_OVERRIDES += \
-    rild.libpath=/vendor/lib/libril-qc-qmi-1.so \
     persist.radio.apm_sim_not_pwdn=1 \
-    persist.radio.add_power_save=1 \
-    ro.ril.telephony.mqanelements=5 \
-    ro.telephony.ril_class=LgeLteRIL
+    persist.telephony.oosisdc=false \
+    ril.subscription.types=NV,RUIM \
+    ro.ril.telephony.mqanelements=5
+
+PRODUCT_PROPERTY_OVERRIDES += \
+    persist.data.netmgrd.qos.enable=false \
+    persist.data.qmi.adb_logmask=0 \
+    persist.qcril.disable_retry=true \
+    ro.use_data_netmgrd=true
 
 # Set max background services
 PRODUCT_PROPERTY_OVERRIDES += \
