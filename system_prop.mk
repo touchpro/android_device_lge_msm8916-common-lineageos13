@@ -13,10 +13,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Camera
 PRODUCT_PROPERTY_OVERRIDES += \
-persist.camera.pip.support=0
-
-PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
-    camera2.portability.force_api=1
+    camera2.portability.force_api=1 \
+    media.stagefright.legacyencoder=true \
+    media.stagefright.less-secure=true
 
 # CNE
 PRODUCT_PROPERTY_OVERRIDES += \
@@ -67,16 +66,12 @@ PRODUCT_PROPERTY_OVERRIDES += \
 
 # Radio
 PRODUCT_PROPERTY_OVERRIDES += \
-    persist.radio.apm_sim_not_pwdn=1 \
-    persist.telephony.oosisdc=false \
-    ril.subscription.types=NV,RUIM \
-    ro.ril.telephony.mqanelements=5
-
-PRODUCT_PROPERTY_OVERRIDES += \
     persist.data.netmgrd.qos.enable=false \
-    persist.data.qmi.adb_logmask=0 \
-    persist.qcril.disable_retry=true \
-    ro.use_data_netmgrd=true
+    persist.radio.apm_sim_not_pwdn=1 \
+    ro.use_data_netmgrd=true \
+    rild.libpath=/vendor/lib/libril-qc-qmi-1.so \
+    telephony.lteOnGsmDevice=1 \
+    ro.telephony.default_network=9
 
 # Set max background services
 PRODUCT_PROPERTY_OVERRIDES += \

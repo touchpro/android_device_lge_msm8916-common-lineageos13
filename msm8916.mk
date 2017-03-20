@@ -43,6 +43,22 @@ PRODUCT_COPY_FILES += \
 PRODUCT_DEFAULT_PROPERTY_OVERRIDES += \
     persist.sys.usb.config=mtp,adb
 
+# Audio
+PRODUCT_PACKAGES += \
+    audiod \
+    audio.a2dp.default \
+    audio.primary.msm8916 \
+    audio.r_submix.default \
+    audio.usb.default \
+    audio_policy.msm8916 \
+    tinymix
+
+PRODUCT_PACKAGES += \
+    libaudio-resampler \
+    libqcompostprocbundle \
+    libqcomvisualizer \
+    libqcomvoiceprocessing
+
 # Audio configuration
 PRODUCT_COPY_FILES += \
     $(LOCAL_PATH)/configs/audio_effects.conf:system/vendor/etc/audio_effects.conf \
@@ -131,11 +147,17 @@ PRODUCT_PACKAGES += \
     init.baseband.sh \
     ueventd.qcom.rc
 
+# Debug
+ADDITIONAL_DEFAULT_PROPERTIES += \
+    ro.secure=0 \
+    ro.adb.secure=0 \
+    security.perf_harden=0
+
 # RIL
 PRODUCT_PACKAGES += \
-    libcnefeatureconfig \
     libxml2 \
     liblge \
+    libqsap_sdk \
     librmnetctl
 
 # Snap
@@ -160,10 +182,6 @@ PRODUCT_PACKAGES += \
     wcnss_service \
     wpa_supplicant \
     wpa_supplicant.conf
-
-# Gestures
-PRODUCT_PACKAGES += \
-    GestureHandler
 
 PRODUCT_COPY_FILES += \
     device/lge/msm8916-common/wcnss/p2p_supplicant.conf:system/etc/wifi/p2p_supplicant.conf \

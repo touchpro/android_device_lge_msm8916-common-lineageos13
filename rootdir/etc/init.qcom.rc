@@ -50,27 +50,10 @@ on init
 
     write /sys/module/qpnp_rtc/parameters/poweron_alarm 1
 
-    # START touch_driver
-    chown system system /sys/devices/virtual/input/lge_touch/lpwg_data
-    chmod 664 /sys/devices/virtual/input/lge_touch/lpwg_data
-    chown system system /sys/devices/virtual/input/lge_touch/lpwg_notify
-    chmod 664 /sys/devices/virtual/input/lge_touch/lpwg_notify
-    chown system system /sys/devices/virtual/input/lge_touch/ts_noise_log_enable
-    chmod 664 /sys/devices/virtual/input/lge_touch/ts_noise_log_enable
-    chown system system /sys/devices/virtual/input/lge_touch/ts_noise
-    chmod 664 /sys/devices/virtual/input/lge_touch/ts_noise
-    chmod 664 /sys/devices/virtual/input/lge_touch/quick_cover_status
-    chown system system /sys/devices/virtual/input/lge_touch/quick_cover_status
-    chown system lgkeyguard /sys/devices/virtual/input/lge_touch/keyguard
-    chmod 664 /sys/devices/virtual/input/lge_touch/keyguard
-    chown system system /sys/devices/virtual/input/lge_touch/pen_support
-    chmod 664 /sys/devices/virtual/input/lge_touch/pen_support
-    chown system system /sys/devices/virtual/input/lge_touch/ime_status
-    chmod 664 /sys/devices/virtual/input/lge_touch/ime_status
-    chown system system /sys/devices/virtual/input/lge_touch/rawdata
-    chmod 664 /sys/devices/virtual/input/lge_touch/rawdata
-    chown system system /sys/devices/virtual/input/lge_touch/use_quick_window
-    chmod 664 /sys/devices/virtual/input/lge_touch/use_quick_window
+    chown system system /sys/class/leds/red/pattern_id
+    chmod 0664 /sys/class/leds/red/pattern_id
+    chown system system /sys/class/leds/red/brightness
+    chmod 0644 /sys/class/leds/red/brightness
 
 on fs
     mount_all fstab.qcom
@@ -216,6 +199,12 @@ service baseband-sh /system/bin/sh /init.baseband.sh
 
     write /proc/sys/vm/vfs_cache_pressure 10000
 
+# restart qcamerasvr when restarting mediaserver and servicemanager
+on property:init.svc.media=restarting
+    restart qcamerasvr
+on property:init.svc.servicemanager=restarting
+    restart qcamerasvr
+
 on early-boot
     # set RLIMIT_MEMLOCK to 64MB
     setrlimit 8 67108864 67108864
@@ -249,6 +238,8 @@ on boot
     chown bluetooth bluetooth /sys/devices/platform/msm_serial_hs.0/clock
     chmod 0660 /sys/devices/platform/msm_serial_hs.0/clock
 
+    chmod 0644 /proc/cmdline
+
     chmod 0660 /dev/ttyHS2
     chown bluetooth bluetooth /dev/ttyHS2
 
@@ -272,6 +263,15 @@ on boot
     mkdir /dev/socket/netmgr 0750 radio radio
 
     setprop wifi.interface wlan0
+
+    # permissions for NFC
+    chmod 0600 /dev/pn547
+    chown nfc nfc /dev/pn547
+    setprop debug.nfc.fw_download "true"
+    setprop debug.nfc.fw_boot_download "false"
+  		  
+    # HAL looks for pn54x but kernel driver uses pn547
+    symlink /dev/pn547 /dev/pn54x
 
 #   Define TCP buffer sizes for various networks
 #   ReadMin, ReadInitial, ReadMax, WriteMin, WriteInitial, WriteMax,
@@ -355,6 +355,39 @@ on boot
 
     write /dev/wcnss_wlan ""
 
+# START touch_driver
+    chown system system /sys/devices/virtual/input/lge_touch/incoming_call
+    chmod 664 /sys/devices/virtual/input/lge_touch/incoming_call
+    chown system system /sys/devices/virtual/input/lge_touch/ime_status
+    chown system lgkeyguard /sys/devices/virtual/input/lge_touch/keyguard
+    chmod 664 /sys/devices/virtual/input/lge_touch/keyguard
+    chown system system /sys/devices/virtual/input/lge_touch/ts_noise_log_enable
+    chmod 664 /sys/devices/virtual/input/lge_touch/ts_noise_log_enable
+    chown system system /sys/devices/virtual/input/lge_touch/ts_noise
+    chmod 664 /sys/devices/virtual/input/lge_touch/ts_noise
+    chown system system /sys/devices/virtual/input/lge_touch/sensing_test
+    chmod 664 /sys/devices/virtual/input/lge_touch/sensing_test
+    chown system system /sys/devices/virtual/input/lge_touch/hidden_normal_cal_state
+    chmod 664 /sys/devices/virtual/input/lge_touch/hidden_normal_cal_state
+    chown system system /sys/devices/virtual/input/lge_touch/hidden_lpwg_cal_state
+    chmod 664 /sys/devices/virtual/input/lge_touch/hidden_lpwg_cal_state
+# END touch_driver
+
+# START touch_knock_on
+    chown system system /sys/devices/virtual/input/lge_touch/lpwg_data
+    chmod 664 /sys/devices/virtual/input/lge_touch/lpwg_data
+    chown system radio /sys/devices/virtual/input/lge_touch/lpwg_notify
+    chmod 664 /sys/devices/virtual/input/lge_touch/lpwg_notify
+    chown system system /sys/devices/virtual/input/lge_touch/lpwg_test_info
+    chmod 644 /sys/devices/virtual/input/lge_touch/lpwg_test_info
+    chown system system /sys/devices/virtual/input/lge_touch/lpwg_test_ctrl
+    chmod 644 /sys/devices/virtual/input/lge_touch/lpwg_test_ctrl
+    chown system system /sys/devices/virtual/input/lge_touch/touch_wake_up_test
+    chmod 664 /sys/devices/virtual/input/lge_touch/touch_wake_up_test
+    chown system system /sys/devices/virtual/input/lge_touch/quick_cover_status
+    chmod 664 /sys/devices/virtual/input/lge_touch/quick_cover_status
+# END touch_knock_on
+
 on property:init.svc.wpa_supplicant=stopped
     stop dhcpcd
 
@@ -403,12 +436,14 @@ on property:bluetooth.hciattach=false
 
 # QMUX must be in multiple groups to support external process connections
 service qmuxd /system/bin/qmuxd
-    class core
+    class main
     user root
-    group radio audio bluetooth gps qcom_diag
+    group radio audio bluetooth gps diag qcom_diag
 
 service netmgrd /system/bin/netmgrd
-    class core
+    class main
+    user root
+    group radio
 
 on property:ro.use_data_netmgrd=false
     # netmgr not supported on specific target
